@@ -1,0 +1,9 @@
+
+build/
+
+generated/
+
+logs/*
+!logs/.gitkeep
+
+.DS_Store

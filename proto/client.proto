@@ -1,0 +1,99 @@
+syntax = "proto3";
+package Client;
+
+service ClientService {
+    rpc Put(PutRequest) returns (PutResponse);
+    rpc Get(GetRequest) returns (GetResponse);
+    rpc Delete(DeleteRequest) returns (DeleteResponse);
+    rpc GetClusterStatus(ClusterStatusRequest) returns (ClusterStatusResponse);
+    rpc GetStateMachine(GetStateMachineRequest) returns (GetStateMachineResponse);
+}
+
+enum ReadConsistency {
+    STRONG = 0; // read from leader
+    STALE = 1; // read from any node
+}
+
+message NodeInfo {
+    uint64 nodeId = 1;
+    string address = 2;
+    string role = 3;
+    uint64 lastApplied = 4;
+}
+
+message NotLeaderInfo {
+    uint64 leaderId = 1;
+    string leaderAddress = 2;
+    uint64 term = 3;
+}
+
+message KeyValuePair {
+    string key = 1;
+    string value = 2;
+}
+
+message PutRequest {
+    uint64 requestId = 1;
+    string key = 2;
+    string value = 3;
+    uint64 timeoutMs = 4; // relative duration, default: 5000ms
+}
+
+message PutResponse {
+    bool success = 1;
+    NotLeaderInfo notLeader = 2;
+}
+
+message GetRequest {
+    uint64 requestId = 1;
+    string key = 2;
+    ReadConsistency consistency = 3;  // default: STRONG
+    uint64 timeoutMs = 4; // relative duration, default: 5000ms
+}
+
+message GetResponse {
+    bool found = 1;
+    string value = 2;
+    uint64 term = 3;
+    uint64 commitIndex = 4;
+    NotLeaderInfo notLeader = 5;
+}
+
+message DeleteRequest {
+    uint64 requestId = 1;
+    string key = 2;
+    uint64 timeoutMs = 3; // relative duration, default: 5000ms
+}
+
+message DeleteResponse {
+    bool success = 1;
+    bool existed = 2;
+    NotLeaderInfo notLeader = 3;
+}
+
+message ClusterStatusRequest {
+    uint64 requestId = 1;
+    uint64 timeoutMs = 2; // relative duration, default: 5000ms
+}
+
+message ClusterStatusResponse {
+    uint64 currentTerm = 1;
+    uint64 leaderId = 2;
+    string leaderAddress = 3;
+    uint64 commitIndex = 4;
+    uint64 lastLogIndex = 5;
+    repeated NodeInfo nodes = 6;
+}
+
+message GetStateMachineRequest {
+    uint64 requestId = 1;
+    ReadConsistency consistency = 2;  // default: STRONG
+    uint64 timeoutMs = 3; // relative duration, default: 5000ms
+}
+
+message GetStateMachineResponse {
+    repeated KeyValuePair data = 1;
+    uint64 currentTerm = 2;
+    uint64 commitIndex = 3;
+    NotLeaderInfo notLeader = 4;
+}
