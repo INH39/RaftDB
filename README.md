@@ -23,6 +23,7 @@ A fault-tolerant distributed key-value database implementing the Raft consensus 
 
 1. **Generate Protocol Buffer files**
    ```bash
+   mkdir generated
    protoc --cpp_out=generated --grpc_out=generated --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` --proto_path=proto proto/*.proto
    ```
 
